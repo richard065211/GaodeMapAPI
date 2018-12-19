@@ -34,4 +34,5 @@ dependencies {
     implementation files('libs/AMap_Location_V4.2.0_20180809.jar')
     implementation files('libs/AMap_Search_V6.5.0_20180930.jar')
     implementation files('libs/Volley.jar')
+    implementation files('libs/AMap3DMap_6.5.0_AMapNavi_6.5.0_20181122.jar')
 }

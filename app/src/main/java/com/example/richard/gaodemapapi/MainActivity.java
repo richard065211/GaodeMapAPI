@@ -1,7 +1,11 @@
 package com.example.richard.gaodemapapi;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
@@ -10,20 +14,17 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
-import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
-import com.amap.api.maps.UiSettings;
 import com.amap.api.maps.model.MyLocationStyle;
 
 public class MainActivity extends AppCompatActivity{
     MapView mMapView;
     AMap aMap;
     MyLocationStyle myLocationStyle;
-
     public AMapLocationClient mLocationClient = null;  //声明AMapLocationClient类对象
     public AMapLocationListener mLocationListener;  //声明定位回调监听器
     public AMapLocationClientOption mLocationOption = null; //声明AMapLocationClientOption对象
-
+    Button button;//切换至导航页面
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,8 +33,16 @@ public class MainActivity extends AppCompatActivity{
         mMapView = (MapView) findViewById(R.id.map);
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         mMapView.onCreate(savedInstanceState);
-        initMap();
-        initMyLocation();
+        button=(Button)findViewById(R.id.changeMapnavi);
+        initMap(); //初始化地图
+        initMyLocation(); // 初始化定位
+        final Intent intent=new Intent(this,Mapnavi.class);//跳转页面
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(intent);
+            }
+        });
     }
     /*
     *初始化地图
