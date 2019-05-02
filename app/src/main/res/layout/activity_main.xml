@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
     tools:context=".MainActivity">
 
 
@@ -11,9 +12,14 @@
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="300dp"/>
-
     <Button
-        android:id="@+id/changeMapnavi"
+        android:id="@+id/mark"
         android:layout_width="match_parent"
-        android:layout_height="100dp" />
+        android:layout_height="40dp"
+        android:text="开始定位起点"/>
+    <Button
+        android:id="@+id/route"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="轨迹上报"/>
 </LinearLayout>
