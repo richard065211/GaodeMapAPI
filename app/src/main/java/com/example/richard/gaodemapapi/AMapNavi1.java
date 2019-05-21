@@ -1,10 +1,10 @@
 package com.example.richard.gaodemapapi;
 
-import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -16,8 +16,6 @@ import com.amap.api.navi.AMapNaviListener;
 import com.amap.api.navi.AMapNaviView;
 import com.amap.api.navi.AMapNaviViewListener;
 import com.amap.api.navi.AmapNaviPage;
-import com.amap.api.navi.AmapNaviParams;
-import com.amap.api.navi.AmapNaviType;
 import com.amap.api.navi.INaviInfoCallback;
 import com.amap.api.navi.enums.NaviType;
 import com.amap.api.navi.model.AMapCalcRouteResult;
@@ -36,18 +34,20 @@ import com.amap.api.navi.model.NaviInfo;
 import com.amap.api.navi.model.NaviLatLng;
 import com.autonavi.tbt.TrafficFacilityInfo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /*
 导航功能启动页面
  */
-public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener, AMapNaviListener {
+public  class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener, AMapNaviListener, INaviInfoCallback {
 
     AMapNaviView mAMapNaviView;  //导航地图view
     AMapNavi mAMapNavi;   //导航实例
-    INaviInfoCallback naviInfoCallback;
     Button button1;
+    AmapNaviPage amapNaviPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,16 +63,11 @@ public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener
         mAMapNavi = AMapNavi.getInstance(getApplicationContext());
         //添加监听回调，用于处理算路成功
         mAMapNavi.addAMapNaviListener(this);
-
-        Poi start = new Poi("", new LatLng(MainActivity.latitud,MainActivity.longitude), "");
-        /**终点传入的是北京站坐标,但是POI的ID "B000A83M61"对应的是北京西站，所以实际算路以北京西站作为终点**/
-        Poi end = new Poi("", new LatLng(28.669654, 115.999488), "");
-        AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), new AmapNaviParams(start, null, end, AmapNaviType.RIDE), naviInfoCallback);
     }
 
     private void initNaviView() {
         com.amap.api.navi.AMapNaviViewOptions options = mAMapNaviView.getViewOptions();
-        options.setCarBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.bicycle));
+
         mAMapNaviView.setViewOptions(options);
     }
 
@@ -82,13 +77,30 @@ public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener
      * 参数2：终点坐标
      */
     private void startNavi(){
+
+        int strategy=0;
+        strategy = mAMapNavi.strategyConvert(true, false, false, false, false);
+
         NaviLatLng endNaviLatLng=new NaviLatLng();
         NaviLatLng startNaviLatLng=new NaviLatLng();
         startNaviLatLng.setLatitude(MainActivity.latitud);
         startNaviLatLng.setLongitude(MainActivity.longitude);
         endNaviLatLng.setLongitude(MainActivity.getLatLng().longitude);
         endNaviLatLng.setLatitude(MainActivity.getLatLng().latitude);
-        mAMapNavi.calculateRideRoute(startNaviLatLng,endNaviLatLng);
+
+        NaviLatLng step1=new NaviLatLng();
+        step1.setLatitude(28.68063866);
+        step1.setLongitude(116.02773587);
+
+        List<NaviLatLng> pois1=new ArrayList<>();  //起始点
+        pois1.add(startNaviLatLng);
+        List<NaviLatLng> pois2=new ArrayList<>();  //终点
+        pois2.add(endNaviLatLng);
+        List<NaviLatLng> pois3=new ArrayList<>();  //途径点
+        pois3.add(step1);
+        mAMapNavi.calculateDriveRoute(pois1, pois2,pois3, strategy);
+//        AmapNaviPage.getInstance().showRouteActivity();
+
     }
     @Override
     protected void onResume() {
@@ -105,30 +117,28 @@ public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mAMapNaviView.onDestroy();
+//        mAMapNaviView.onDestroy();
+        mAMapNavi.stopGPS(); // 关闭GPS
+        mAMapNavi.stopNavi();//关闭导航
         mAMapNavi.destroy();
+        mAMapNaviView.onDestroy();
+
     }
 
-
-    /*
-    初始化地图成功，开始计算路径
-     */
-    @Override
-    public void onInitNaviSuccess() {
-        startNavi();
-    }
-    /*
-    计算路径成功返回毁掉方法
-     */
-    @Override
-    public void onCalculateRouteSuccess(com.amap.api.navi.model.AMapCalcRouteResult aMapCalcRouteResult){
-        mAMapNavi.startNavi(NaviType.GPS);
-    }
 
     @Override
     public void onInitNaviFailure() {
 
     }
+
+    /*
+        初始化地图成功，开始计算路径
+         */
+    @Override
+    public void onInitNaviSuccess() {
+        startNavi();
+    }
+
     @Override
     public void onStartNavi(int i) {
 
@@ -136,6 +146,24 @@ public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener
 
     @Override
     public void onTrafficStatusUpdate() {
+
+    }
+
+    /*
+    计算路径成功返回毁掉方法
+     */
+    @Override
+    public void onCalculateRouteSuccess(com.amap.api.navi.model.AMapCalcRouteResult aMapCalcRouteResult){
+        mAMapNavi.startNavi(NaviType.EMULATOR);
+    }
+
+    @Override
+    public void onCalculateRouteFailure(AMapCalcRouteResult aMapCalcRouteResult) {
+
+    }
+
+    @Override
+    public void onNaviRouteNotify(AMapNaviRouteNotifyData aMapNaviRouteNotifyData) {
 
     }
 
@@ -162,7 +190,12 @@ public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener
             public void run() {
                 handler.sendEmptyMessage(0x1233);
             }
-        },0,1200);
+        },0,50000);
+    }
+
+    @Override
+    public void onArriveDestination(boolean b) {
+
     }
 
     @Override
@@ -180,14 +213,48 @@ public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener
 
     }
 
+    /**
+     * 到达目的地
+     */
     @Override
     public void onArriveDestination() {
-
+        Toast.makeText(getApplicationContext(),"你已到达目的地",Toast.LENGTH_LONG);
+        Log.e("destination","你已到达目的地");
     }
 
     @Override
     public void onCalculateRouteFailure(int i) {
 
+    }
+
+    @Override
+    public void onStopSpeaking() {
+
+    }
+
+    @Override
+    public void onReCalculateRoute(int i) {
+
+    }
+
+    @Override
+    public void onExitPage(int i) {
+
+    }
+
+    @Override
+    public void onStrategyChanged(int i) {
+
+    }
+
+    @Override
+    public View getCustomNaviBottomView() {
+        return null;
+    }
+
+    @Override
+    public View getCustomNaviView() {
+        return null;
     }
 
     @Override
@@ -310,18 +377,6 @@ public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener
 
     }
 
-
-
-    @Override
-    public void onCalculateRouteFailure(AMapCalcRouteResult aMapCalcRouteResult) {
-
-    }
-
-    @Override
-    public void onNaviRouteNotify(AMapNaviRouteNotifyData aMapNaviRouteNotifyData) {
-
-    }
-
     @Override
     public void onNaviSetting() {
 
@@ -329,7 +384,10 @@ public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener
 
     @Override
     public void onNaviCancel() {
-
+        mAMapNavi.stopNavi();
+        mAMapNavi.stopGPS();
+        mAMapNavi.destroy();
+        onDestroy();
     }
 
     @Override
@@ -374,11 +432,6 @@ public class AMapNavi1 extends AppCompatActivity implements AMapNaviViewListener
 
     @Override
     public void onNaviViewShowMode(int i) {
-
-    }
-
-    @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
 
     }
 }

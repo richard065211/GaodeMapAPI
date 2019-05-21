@@ -16,10 +16,25 @@
         android:id="@+id/mark"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:text="开始定位起点"/>
+        android:text="开始导航"/>
     <Button
         android:id="@+id/route"
         android:layout_width="match_parent"
         android:layout_height="40dp"
+        android:text="夜景模式"/>
+    <Button
+        android:id="@+id/route1"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
         android:text="轨迹上报"/>
+    <Button
+        android:id="@+id/routestop"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="停止轨迹上报"/>
+    <Button
+        android:id="@+id/search_route1"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="查询所有轨迹"/>
 </LinearLayout>

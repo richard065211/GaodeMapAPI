@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.richard.gaodemapapi"
-        minSdkVersion 23
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -30,10 +30,5 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    //定位功能
-    implementation 'com.amap.api:search:latest.integration'
-    //搜索功能
-    implementation 'com.amap.api:navi-3dmap:latest.integration'
-    //导航功能
-    implementation files('libs/AMapTrack_1.1.0_AMapLocation_4.5.0_20190227.jar')
+    implementation files('libs/AMap3DMap_6.8.0_AMapNavi_6.7.0_AMapSearch_6.5.0_AMapTrack_1.0.0_AMapLocation_4.6.0_20190423.jar')
 }
